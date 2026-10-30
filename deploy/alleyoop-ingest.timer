@@ -1,0 +1,12 @@
+# /etc/systemd/system/alleyoop-ingest.timer
+[Unit]
+Description=Run Alley Oop Analytics ingestion nightly
+
+[Timer]
+# 09:00 UTC = 5am ET / 2am PT, after late West Coast games are final.
+OnCalendar=*-*-* 09:00:00 UTC
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

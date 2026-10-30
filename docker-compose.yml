@@ -1,0 +1,59 @@
+# Usage:  docker compose up -d --build     then open http://localhost:8000
+# First start runs a full backfill (~1 minute) before data appears.
+name: alleyoop
+
+services:
+  web:
+    build: .
+    image: alleyoop-analytics:latest
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB_PATH: /app/data/alleyoop.db
+    ports:
+      # Bound to localhost only: cloudflared on the host reaches it, nothing else on the LAN does.
+      # Change the left-hand port if 8000 is taken by another app on the Pi.
+      - "127.0.0.1:${HOST_PORT:-8000}:8000"
+    volumes:
+      - alleyoop-data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }
+
+  ingest:
+    image: alleyoop-analytics:latest
+    depends_on:
+      - web # ensures the image is built first
+    restart: unless-stopped
+    command: ["python", "-m", "ingest.scheduler"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB_PATH: /app/data/alleyoop.db
+    volumes:
+      - alleyoop-data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 384m
+    cpus: 1.0
+    healthcheck:
+      disable: true
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }
+
+volumes:
+  alleyoop-data:

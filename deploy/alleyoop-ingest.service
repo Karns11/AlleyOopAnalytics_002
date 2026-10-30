@@ -1,0 +1,20 @@
+# /etc/systemd/system/alleyoop-ingest.service
+[Unit]
+Description=Alley Oop Analytics nightly incremental ingestion
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/AlleyOopAnalytics
+EnvironmentFile=/home/pi/AlleyOopAnalytics/.env
+ExecStart=/home/pi/AlleyOopAnalytics/.venv/bin/python -m ingest.ingest --mode incremental
+TimeoutStartSec=15min
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/AlleyOopAnalytics/data

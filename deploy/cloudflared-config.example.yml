@@ -1,0 +1,8 @@
+# ~/.cloudflared/config.yml  (or /etc/cloudflared/config.yml when running as a service)
+tunnel: alleyoop
+credentials-file: /home/pi/.cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  - hostname: nba.example.com
+    service: http://localhost:8000
+  - service: http_status:404
