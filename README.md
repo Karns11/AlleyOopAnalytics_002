@@ -38,7 +38,7 @@ One image runs as two containers that share a named volume holding the SQLite fi
 
 | Service | What it does |
 |---|---|
-| `web` | uvicorn serving the API and the frontend on `127.0.0.1:${HOST_PORT:-8000}` |
+| `web` | uvicorn serving the API and the frontend on `${BIND_ADDR:-127.0.0.1}:${HOST_PORT:-8000}` |
 | `ingest` | `python -m ingest.scheduler`. On first start it runs a full backfill. After that it runs an incremental update every day at `INGEST_HOUR_UTC` (default 09:00 UTC). If a run fails, it retries an hour later. |
 
 ```bash
@@ -51,6 +51,8 @@ docker compose down -v            # stop AND delete the data
 ```
 
 You don't need a `.env` file. To change settings, copy `.env.example` to `.env`; compose picks it up automatically. `HOST_PORT` changes the port on the host, which helps if 8000 is already taken on the Pi.
+
+To open the app from other devices on your home network at `http://<pi-ip>:8000`, set `BIND_ADDR=0.0.0.0` in `.env` and run `docker compose up -d`. The default, `127.0.0.1`, makes the app reachable only from the Pi itself and cloudflared.
 
 **On the Pi** (64-bit Raspberry Pi OS with Docker and the compose plugin installed):
 

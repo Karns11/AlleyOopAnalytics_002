@@ -13,9 +13,10 @@ services:
     environment:
       DB_PATH: /app/data/alleyoop.db
     ports:
-      # Bound to localhost only: cloudflared on the host reaches it, nothing else on the LAN does.
-      # Change the left-hand port if 8000 is taken by another app on the Pi.
-      - "127.0.0.1:${HOST_PORT:-8000}:8000"
+      # BIND_ADDR=127.0.0.1 (default): only the host itself (and cloudflared on it) can reach the app.
+      # BIND_ADDR=0.0.0.0: also reachable from your home network at http://<pi-ip>:HOST_PORT.
+      # Change HOST_PORT if 8000 is taken by another app on the Pi.
+      - "${BIND_ADDR:-127.0.0.1}:${HOST_PORT:-8000}:8000"
     volumes:
       - alleyoop-data:/app/data
     read_only: true
